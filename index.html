@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>인서트 프롬프트 스튜디오</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>인서트 프롬프트 스튜디오</h1>
+    <p>영상 업로드 → 컷 분할(첫 프레임 추출) → 나노바나나 프롬프트 생성</p>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>1) 영상 업로드 & 컷 분할</h2>
+      <div class="grid">
+        <label>
+          레퍼런스 영상
+          <input id="videoFile" type="file" accept="video/*" />
+        </label>
+        <label>
+          최대 분석 길이(초)
+          <input id="maxSeconds" type="number" min="10" max="3600" value="180" />
+        </label>
+        <label>
+          샘플 간격(초)
+          <input id="sampleStep" type="number" min="0.2" max="10" step="0.1" value="1" />
+        </label>
+        <label>
+          컷 전환 민감도 (0~1)
+          <input id="sensitivity" type="number" min="0.02" max="0.8" step="0.01" value="0.18" />
+        </label>
+      </div>
+      <div class="actions">
+        <button id="analyzeBtn">컷 분할 시작</button>
+        <button id="clearBtn" class="secondary">초기화</button>
+      </div>
+      <p id="status">대기 중</p>
+      <video id="previewVideo" controls></video>
+      <canvas id="workCanvas" width="320" height="180" hidden></canvas>
+      <div id="frames" class="frames"></div>
+    </section>
+
+    <section class="card">
+      <h2>2) 장면 프롬프트 생성</h2>
+      <div class="grid">
+        <label>
+          장면 타입
+          <select id="sceneType"></select>
+        </label>
+        <label>
+          레퍼런스 프레임 ID
+          <input id="frameId" type="text" placeholder="예: S01_F001" />
+        </label>
+        <label>
+          카메라 각도 보정
+          <input id="cameraDelta" type="text" placeholder="예: +10 degree right" />
+        </label>
+        <label>
+          한복 코드
+          <input id="wardrobe" type="text" value="HANBOK_CW01" />
+        </label>
+      </div>
+      <div class="grid">
+        <label>
+          강조 요소
+          <input id="mustShow" type="text" placeholder="예: steam, broth clarity, host hands" />
+        </label>
+        <label>
+          금지 요소
+          <input id="mustAvoid" type="text" placeholder="예: bulgogi cues, clutter" />
+        </label>
+      </div>
+      <div class="actions">
+        <button id="generateBtn">프롬프트 생성</button>
+        <button id="copyBtn" class="secondary">복사</button>
+      </div>
+      <textarea id="promptOutput" rows="12" placeholder="여기에 생성됩니다."></textarea>
+    </section>
+  </main>
+
+  <footer>
+    <small>로컬 브라우저에서 동작합니다. 업로드한 영상은 서버로 전송되지 않습니다.</small>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
