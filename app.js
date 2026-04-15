@@ -25,6 +25,7 @@ const el = {
   sampleStep: document.getElementById("sampleStep"),
   sensitivity: document.getElementById("sensitivity"),
   analyzeBtn: document.getElementById("analyzeBtn"),
+  exportCsvBtn: document.getElementById("exportCsvBtn"),
   clearBtn: document.getElementById("clearBtn"),
   status: document.getElementById("status"),
   previewVideo: document.getElementById("previewVideo"),
@@ -37,6 +38,7 @@ const el = {
   mustShow: document.getElementById("mustShow"),
   mustAvoid: document.getElementById("mustAvoid"),
   generateBtn: document.getElementById("generateBtn"),
+  batchBtn: document.getElementById("batchBtn"),
   copyBtn: document.getElementById("copyBtn"),
   promptOutput: document.getElementById("promptOutput"),
 };
@@ -78,36 +80,101 @@ function waitSeek(video, time) {
   });
 }
 
+function makeDepthMap(baseImageData, width, height) {
+  const out = new ImageData(width, height);
+  for (let i = 0; i < baseImageData.length; i += 4) {
+    const gray = (baseImageData[i] + baseImageData[i + 1] + baseImageData[i + 2]) / 3;
+    out.data[i] = gray;
+    out.data[i + 1] = gray;
+    out.data[i + 2] = gray;
+    out.data[i + 3] = 255;
+  }
+  return out;
+}
+
+function downloadDataUrl(dataUrl, filename) {
+  const a = document.createElement("a");
+  a.href = dataUrl;
+  a.download = filename;
+  a.click();
+}
+
+function buildPrompt(referenceFrameId) {
+  const type = el.sceneType.value;
+  const template = sceneTemplates[type];
+  if (!template) return "";
+
+  const values = {
+    REFERENCE_FRAME: referenceFrameId || "S01_F001",
+    CAMERA_DELTA: el.cameraDelta.value || "+10 degree right",
+    WARDROBE: el.wardrobe.value || "HANBOK_CW01",
+    MUST_SHOW: el.mustShow.value || "dakbaeksuk hero bowl, steam, host hands",
+    MUST_AVOID: el.mustAvoid.value || "bulgogi cues, clutter, distorted hands"
+  };
+
+  let prompt = template;
+  Object.entries(values).forEach(([key, value]) => {
+    prompt = prompt.replaceAll(`{${key}}`, value);
+  });
+
+  const globalPrefix = "Use the provided first-frame image as composition and depth reference only. Preserve grayscale depth hierarchy. Replace pabulgogi semantics with dakbaeksuk (main) and nurungji-tang (secondary). Keep host identity consistent.";
+  const negative = "Negative constraints: no pabulgogi semantics, no wok-centric setup, no distorted fingers, no plastic skin, no random text artifacts.";
+
+  return `${globalPrefix}\n\n${prompt}\n\n${negative}`;
+}
+
 function renderFrames() {
   el.frames.innerHTML = "";
-  state.frames.forEach((frame, index) => {
+  state.frames.forEach((frame) => {
     const card = document.createElement("div");
     card.className = "frame-card";
 
+    const imageGrid = document.createElement("div");
+    imageGrid.className = "frame-image-grid";
+
     const img = document.createElement("img");
     img.src = frame.dataUrl;
-    img.alt = frame.id;
+    img.alt = `${frame.id}-original`;
+
+    const depthImg = document.createElement("img");
+    depthImg.src = frame.depthDataUrl;
+    depthImg.alt = `${frame.id}-depth`;
+
+    imageGrid.appendChild(img);
+    imageGrid.appendChild(depthImg);
 
     const meta = document.createElement("div");
     meta.className = "frame-meta";
-    meta.innerHTML = `<b>${frame.id}</b><br/>${frame.time.toFixed(2)}s`;
+    meta.innerHTML = `<b>${frame.id}</b><br/>${frame.time.toFixed(2)}s<br/>좌:원본 / 우:심도(그레이)`;
 
-    img.addEventListener("click", () => {
+    const pickBtn = document.createElement("button");
+    pickBtn.textContent = "이 프레임 선택";
+    pickBtn.className = "secondary";
+    pickBtn.addEventListener("click", () => {
       el.frameId.value = frame.id;
+      el.promptOutput.value = buildPrompt(frame.id);
+      setStatus(`${frame.id} 선택됨`);
     });
 
-    const download = document.createElement("a");
-    download.href = frame.dataUrl;
-    download.download = `${frame.id}.jpg`;
-    download.textContent = "다운로드";
-    download.style.display = "inline-block";
-    download.style.marginTop = "4px";
+    const downOriginal = document.createElement("button");
+    downOriginal.textContent = "원본 JPG";
+    downOriginal.className = "secondary";
+    downOriginal.addEventListener("click", () => downloadDataUrl(frame.dataUrl, `${frame.id}.jpg`));
 
-    meta.appendChild(document.createElement("br"));
-    meta.appendChild(download);
+    const downDepth = document.createElement("button");
+    downDepth.textContent = "심도 JPG";
+    downDepth.className = "secondary";
+    downDepth.addEventListener("click", () => downloadDataUrl(frame.depthDataUrl, `${frame.id}_depth.jpg`));
 
-    card.appendChild(img);
+    const btnWrap = document.createElement("div");
+    btnWrap.className = "actions";
+    btnWrap.appendChild(pickBtn);
+    btnWrap.appendChild(downOriginal);
+    btnWrap.appendChild(downDepth);
+
+    card.appendChild(imageGrid);
     card.appendChild(meta);
+    card.appendChild(btnWrap);
     el.frames.appendChild(card);
   });
 }
@@ -143,53 +210,82 @@ async function analyzeVideoCuts() {
   for (let t = 0; t <= duration; t += step) {
     await waitSeek(el.previewVideo, t);
     ctx.drawImage(el.previewVideo, 0, 0, canvas.width, canvas.height);
-    const currentImageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+    const current = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
     let isCut = false;
     if (!prevImageData) {
       isCut = true;
     } else {
-      const diff = averageDiff(prevImageData, currentImageData);
+      const diff = averageDiff(prevImageData, current.data);
       isCut = diff >= sensitivity;
     }
 
     if (isCut) {
       const id = `S01_F${String(count).padStart(3, "0")}`;
       const dataUrl = canvas.toDataURL("image/jpeg", 0.92);
-      state.frames.push({ id, time: t, dataUrl });
+
+      const depthMap = makeDepthMap(current.data, canvas.width, canvas.height);
+      ctx.putImageData(depthMap, 0, 0);
+      const depthDataUrl = canvas.toDataURL("image/jpeg", 0.92);
+
+      ctx.putImageData(current, 0, 0);
+      state.frames.push({ id, time: t, dataUrl, depthDataUrl });
       count += 1;
     }
 
-    prevImageData = new Uint8ClampedArray(currentImageData);
+    prevImageData = new Uint8ClampedArray(current.data);
     setStatus(`분석 중... (${t.toFixed(1)} / ${duration.toFixed(1)}초)`);
   }
 
   renderFrames();
-  setStatus(`완료: ${state.frames.length}개 컷 첫 프레임 추출`);
+  setStatus(`완료: ${state.frames.length}개 컷 첫 프레임/심도맵 추출`);
 }
 
 function generatePrompt() {
-  const type = el.sceneType.value;
-  const template = sceneTemplates[type];
-  if (!template) return;
+  el.promptOutput.value = buildPrompt(el.frameId.value);
+}
 
-  const values = {
-    REFERENCE_FRAME: el.frameId.value || "S01_F001",
-    CAMERA_DELTA: el.cameraDelta.value || "+10 degree right",
-    WARDROBE: el.wardrobe.value || "HANBOK_CW01",
-    MUST_SHOW: el.mustShow.value || "dakbaeksuk hero bowl, steam, host hands",
-    MUST_AVOID: el.mustAvoid.value || "bulgogi cues, clutter, distorted hands"
-  };
+function generateBatchPrompts() {
+  if (!state.frames.length) {
+    setStatus("일괄 생성 전에 컷 분할을 먼저 실행해 주세요.");
+    return;
+  }
 
-  let prompt = template;
-  Object.entries(values).forEach(([key, value]) => {
-    prompt = prompt.replaceAll(`{${key}}`, value);
+  const blocks = state.frames.map((frame) => {
+    return `### ${frame.id}\n${buildPrompt(frame.id)}`;
   });
+  el.promptOutput.value = blocks.join("\n\n");
+  setStatus(`${state.frames.length}개 프레임 일괄 프롬프트 생성 완료`);
+}
 
-  const globalPrefix = `Use the provided first-frame image as composition and depth reference only. Preserve grayscale depth hierarchy. Replace pabulgogi semantics with dakbaeksuk (main) and nurungji-tang (secondary). Keep host identity consistent.`;
-  const negative = `Negative constraints: no pabulgogi semantics, no wok-centric setup, no distorted fingers, no plastic skin, no random text artifacts.`;
+function exportCutCsv() {
+  if (!state.frames.length) {
+    setStatus("CSV 내보내기 전에 컷 분할을 먼저 실행해 주세요.");
+    return;
+  }
 
-  el.promptOutput.value = `${globalPrefix}\n\n${prompt}\n\n${negative}`;
+  const header = [
+    "frame_id","time_sec","scene_type","camera_delta","wardrobe_code","must_show","must_avoid","output_ar"
+  ];
+
+  const rows = state.frames.map((frame) => [
+    frame.id,
+    frame.time.toFixed(2),
+    el.sceneType.value,
+    (el.cameraDelta.value || "+10 degree right").replaceAll(",", " "),
+    (el.wardrobe.value || "HANBOK_CW01").replaceAll(",", " "),
+    (el.mustShow.value || "dakbaeksuk hero bowl steam").replaceAll(",", " "),
+    (el.mustAvoid.value || "bulgogi cues clutter").replaceAll(",", " "),
+    "16:9"
+  ]);
+
+  const csv = [header, ...rows].map((row) => row.join(",")).join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  downloadDataUrl(url, "cut_map_export.csv");
+  URL.revokeObjectURL(url);
+
+  setStatus(`CSV 내보내기 완료 (${rows.length}행)`);
 }
 
 function clearAll() {
@@ -208,6 +304,8 @@ async function copyPrompt() {
 
 initSceneTypes();
 el.analyzeBtn.addEventListener("click", analyzeVideoCuts);
+el.exportCsvBtn.addEventListener("click", exportCutCsv);
 el.clearBtn.addEventListener("click", clearAll);
 el.generateBtn.addEventListener("click", generatePrompt);
+el.batchBtn.addEventListener("click", generateBatchPrompts);
 el.copyBtn.addEventListener("click", copyPrompt);

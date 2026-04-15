@@ -57,6 +57,7 @@ textarea { width: 100%; }
   display: flex;
   gap: 8px;
   margin-bottom: 8px;
+  flex-wrap: wrap;
 }
 button {
   border: none;
@@ -80,7 +81,7 @@ video {
 .frames {
   margin-top: 12px;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 10px;
 }
 .frame-card {
@@ -89,9 +90,15 @@ video {
   overflow: hidden;
   background: #fff;
 }
+.frame-image-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
 .frame-card img {
   width: 100%;
   display: block;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
 }
 .frame-meta {
   padding: 8px;
