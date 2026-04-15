@@ -1,0 +1,25 @@
+frame_id,source_video,scene_role,camera_base,camera_delta_deg,host_sheet,wardrobe_code,env_sheet,prop_sheet,ingredient_sheet,primary_product,secondary_product,must_show,must_avoid,output_ar
+S01_F001,01_brand,opening_hero,3_4_front,+10,HUMAN_MASTER_A,HANBOK_CW01,ENV_A,PROP_A,ING_DAK_NUR_01,dakbaeksuk,nurungji_tang,"host + hero bowl + steam","bulgogi cues",16:9
+S01_F002,01_brand,trust_closeup,front,+5,HUMAN_MASTER_A,HANBOK_CW01,ENV_A,PROP_A,ING_DAK_NUR_01,dakbaeksuk,nurungji_tang,"host face + bowl edge","text artifact",16:9
+S01_F003,01_brand,product_hero,macro,+0,HUMAN_MASTER_A,HANBOK_CW01,ENV_A,PROP_A,ING_DAK_NUR_01,dakbaeksuk,nurungji_tang,"broth clarity + chicken texture","over-saturation",16:9
+S01_F004,01_brand,ending_mood,rear_diag,+8,HUMAN_MASTER_A,HANBOK_CW01,ENV_A,PROP_A,ING_DAK_NUR_01,dakbaeksuk,nurungji_tang,"silhouette + plating hands","busy background",16:9
+S02_F001,02_infomotion,benefit_talk,front,+5,HUMAN_MASTER_A,HANBOK_CW02,ENV_A,PROP_A,ING_DAK_NUR_01,dakbaeksuk,nurungji_tang,"host talk + ladle","logo text",16:9
+S02_F002,02_infomotion,ingredient_cred,top,+0,HUMAN_MASTER_A,HANBOK_CW02,ENV_A,PROP_A,ING_DAK_NUR_01,dakbaeksuk,nurungji_tang,"garlic + jujube + roots","raw clutter",16:9
+S02_F003,02_infomotion,broth_texture,macro,+0,HUMAN_MASTER_A,HANBOK_CW02,ENV_A,PROP_A,ING_DAK_NUR_01,dakbaeksuk,nurungji_tang,"ladle pour + steam","muddy broth",16:9
+S02_F004,02_infomotion,nurungji_transition,close,+3,HUMAN_MASTER_A,HANBOK_CW02,ENV_A,PROP_A,ING_DAK_NUR_01,dakbaeksuk,nurungji_tang,"nurungji crisp-to-soft","deep-fry look",16:9
+S03_F001,03_ingredients,ingredient_topview,top,+0,HUMAN_MASTER_A,HANBOK_CW03,ENV_B,PROP_B,ING_DAK_NUR_01,dakbaeksuk,nurungji_tang,"radial ingredient layout","clutter",16:9
+S03_F002,03_ingredients,master_selection,side,+10,HUMAN_MASTER_A,HANBOK_CW03,ENV_B,PROP_B,ING_DAK_NUR_01,dakbaeksuk,nurungji_tang,"hand picking gesture","finger distortion",16:9
+S03_F003,03_ingredients,raw_to_finish,diag,+5,HUMAN_MASTER_A,HANBOK_CW03,ENV_B,PROP_B,ING_DAK_NUR_01,dakbaeksuk,nurungji_tang,"raw+pot+plating depth","flat composition",16:9
+S03_F004,03_ingredients,quality_mood,front,+3,HUMAN_MASTER_A,HANBOK_CW03,ENV_B,PROP_B,ING_DAK_NUR_01,dakbaeksuk,nurungji_tang,"host nod + finished bowls","dark tone",16:9
+S04_F001,04_cooking,boil_start,side,+8,HUMAN_MASTER_A,HANBOK_CW01,ENV_B,PROP_B,ING_DAK_NUR_01,dakbaeksuk,nurungji_tang,"stone pot simmer start","stir-fry pan",16:9
+S04_F002,04_cooking,mid_process,side,+12,HUMAN_MASTER_A,HANBOK_CW01,ENV_B,PROP_B,ING_DAK_NUR_01,dakbaeksuk,nurungji_tang,"tong + ladle lift","frozen look",16:9
+S04_F003,04_cooking,near_finish,close,+5,HUMAN_MASTER_A,HANBOK_CW01,ENV_B,PROP_B,ING_DAK_NUR_01,dakbaeksuk,nurungji_tang,"tender chicken + clear broth","thick red sauce",16:9
+S04_F004,04_cooking,final_plating,front,+5,HUMAN_MASTER_A,HANBOK_CW01,ENV_B,PROP_B,ING_DAK_NUR_01,dakbaeksuk,nurungji_tang,"two-bowl composition","random garnish",16:9
+S05_F001,05_recipes,variation_1,diag,+8,HUMAN_MASTER_A,HANBOK_CW02,ENV_A,PROP_C,ING_DAK_NUR_01,dakbaeksuk,nurungji_tang,"derived serving bowl","off-brand style",16:9
+S05_F002,05_recipes,variation_2,front,+5,HUMAN_MASTER_A,HANBOK_CW02,ENV_A,PROP_C,ING_DAK_NUR_01,dakbaeksuk,nurungji_tang,"portioning action","reflection noise",16:9
+S05_F003,05_recipes,family_serving,top,+0,HUMAN_MASTER_A,HANBOK_CW02,ENV_A,PROP_C,ING_DAK_NUR_01,dakbaeksuk,nurungji_tang,"multi-bowl family cue","table clutter",16:9
+S05_F004,05_recipes,convenience,side,+5,HUMAN_MASTER_A,HANBOK_CW02,ENV_A,PROP_C,ING_DAK_NUR_01,dakbaeksuk,nurungji_tang,"reheating-ready setup","cheap vibe",16:9
+S06_F001,06_texture,chicken_macro,macro,+0,HUMAN_MASTER_A,HANBOK_CW01,ENV_A,PROP_A,ING_DAK_NUR_01,dakbaeksuk,nurungji_tang,"moist chicken fiber","plastic texture",16:9
+S06_F002,06_texture,broth_motion,macro,+0,HUMAN_MASTER_A,HANBOK_CW01,ENV_A,PROP_A,ING_DAK_NUR_01,dakbaeksuk,nurungji_tang,"ladle swirl + steam","flat liquid",16:9
+S06_F003,06_texture,nurungji_texture,macro,+0,HUMAN_MASTER_A,HANBOK_CW01,ENV_A,PROP_A,ING_DAK_NUR_01,dakbaeksuk,nurungji_tang,"crisp-soft transition","burnt black tone",16:9
+S06_F004,06_texture,texture_finale,diag,+6,HUMAN_MASTER_A,HANBOK_CW01,ENV_A,PROP_A,ING_DAK_NUR_01,dakbaeksuk,nurungji_tang,"front-mid-rear texture stack","low contrast",16:9
