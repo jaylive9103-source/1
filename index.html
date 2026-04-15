@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>인서트 프롬프트 스튜디오</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>인서트 프롬프트 스튜디오</h1>
+    <p>영상 업로드 → 컷 분할(첫 프레임/비율용 심도) → 시퀀스 즉시 프롬프트 변환</p>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>1) 영상 업로드 & 컷 분할</h2>
+      <div class="grid">
+        <label>레퍼런스 영상<input id="videoFile" type="file" accept="video/*" /></label>
+        <label>최대 분석 길이(초)<input id="maxSeconds" type="number" min="10" max="3600" value="180" /></label>
+        <label>샘플 간격(초)<input id="sampleStep" type="number" min="0.2" max="10" step="0.1" value="1" /></label>
+        <label>컷 전환 민감도 (0~1)<input id="sensitivity" type="number" min="0.02" max="0.8" step="0.01" value="0.18" /></label>
+      </div>
+
+      <h3>심도맵 형태 조절 (인물 비율 고정용)</h3>
+      <div class="grid">
+        <label>Depth 감마<input id="depthGamma" type="number" min="0.3" max="2.5" step="0.1" value="0.8" /></label>
+        <label>Depth 단계 수<input id="depthLevels" type="number" min="3" max="32" step="1" value="12" /></label>
+        <label>배경 암부 강화(0~1)<input id="bgDarken" type="number" min="0" max="1" step="0.05" value="0.45" /></label>
+        <label class="checkbox">반전 심도 사용<input id="depthInvert" type="checkbox" /></label>
+      </div>
+
+      <div class="actions">
+        <button id="analyzeBtn">컷 분할 시작</button>
+        <button id="regenDepthBtn" class="secondary">심도 다시 생성</button>
+        <button id="exportCsvBtn" class="secondary">컷 CSV 내보내기</button>
+        <button id="clearBtn" class="secondary">초기화</button>
+      </div>
+      <p id="status">대기 중</p>
+      <video id="previewVideo" controls></video>
+      <canvas id="workCanvas" width="320" height="180" hidden></canvas>
+      <div id="frames" class="frames"></div>
+    </section>
+
+    <section class="card">
+      <h2>2) 프롬프트 규격 (이미지 슬롯 고정)</h2>
+      <div class="slot-box">
+        <p><b>이미지 1:</b> 캐릭터 시트(인물/한복/얼굴/손)</p>
+        <p><b>이미지 2:</b> 배경 시트(세트/조명/공간)</p>
+        <p><b>이미지 3:</b> 도구 시트(그릇/조리도구/소품)</p>
+        <p><b>이미지 4:</b> 시퀀스 원본 프레임(자동 추출)</p>
+        <p><b>이미지 5:</b> 비율용 심도맵(자동 생성)</p>
+      </div>
+
+      <div class="grid">
+        <label>장면 타입<select id="sceneType"></select></label>
+        <label>레퍼런스 프레임 ID<input id="frameId" type="text" placeholder="예: S01_F001" /></label>
+        <label>카메라 각도 보정<input id="cameraDelta" type="text" placeholder="예: +10 degree right" /></label>
+        <label>한복 코드<input id="wardrobe" type="text" value="HANBOK_CW01" /></label>
+      </div>
+      <div class="grid">
+        <label>강조 요소<input id="mustShow" type="text" placeholder="예: steam, broth clarity, host hands" /></label>
+        <label>금지 요소<input id="mustAvoid" type="text" placeholder="예: bulgogi cues, clutter" /></label>
+      </div>
+      <div class="actions">
+        <button id="generateBtn">현재 프레임 프롬프트 생성</button>
+        <button id="batchBtn">전체 프레임 즉시 프롬프트화</button>
+        <button id="copyBtn" class="secondary">복사</button>
+      </div>
+      <textarea id="promptOutput" rows="16" placeholder="여기에 생성됩니다."></textarea>
+    </section>
+
+    <section class="card">
+      <h2>3) 컷 기획안 적용 (글로벌 + 개별컷 분리)</h2>
+      <p>아래에 TB-XXX-YY / NT-XXX-YY 형식 기획안을 붙여넣으면 자동 파싱됩니다.</p>
+      <textarea id="planInput" rows="10" placeholder="예시
+TB-COOK-04
+통닭이 담긴 탕기에 육수가 부어지는 핵심 장면..."></textarea>
+      <div class="grid">
+        <label>제품군
+          <select id="planProduct">
+            <option value="ALL">전체</option>
+            <option value="TB">토종닭백숙(TB)</option>
+            <option value="NT">누룽지탕(NT)</option>
+          </select>
+        </label>
+        <label>챕터
+          <select id="planChapter">
+            <option value="ALL">전체</option>
+            <option value="BR">브랜드</option>
+            <option value="INF">인포모션</option>
+            <option value="RAW">원재료</option>
+            <option value="COOK">조리과정</option>
+            <option value="APP">응용요리</option>
+            <option value="TEX">식감모음</option>
+          </select>
+        </label>
+      </div>
+      <div class="actions">
+        <button id="parsePlanBtn">기획안 파싱</button>
+        <button id="generatePlanBtn">기획컷 프롬프트 생성</button>
+      </div>
+      <p id="planStatus">기획안 미적용</p>
+    </section>
+
+  </main>
+
+  <footer>
+    <small>로컬 브라우저에서 동작합니다. 업로드 영상은 서버로 전송되지 않습니다.</small>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

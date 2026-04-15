@@ -1,0 +1,122 @@
+:root {
+  --bg: #f7f8fa;
+  --card: #ffffff;
+  --text: #1d1f24;
+  --line: #d9dee8;
+  --primary: #2059ff;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+header, footer {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 16px;
+}
+main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 16px 24px;
+  display: grid;
+  gap: 16px;
+}
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 16px;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+}
+label.checkbox {
+  flex-direction: row-reverse;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 20px;
+}
+input, select, textarea, button { font: inherit; }
+input, select, textarea {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px;
+  background: #fff;
+}
+textarea { width: 100%; }
+.actions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+button {
+  border: none;
+  border-radius: 10px;
+  padding: 10px 14px;
+  background: var(--primary);
+  color: #fff;
+  cursor: pointer;
+}
+button.secondary {
+  background: #dfe6ff;
+  color: #223;
+}
+video {
+  width: 100%;
+  max-height: 300px;
+  background: #000;
+  border-radius: 10px;
+  margin-top: 8px;
+}
+.slot-box {
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  background: #fbfcff;
+}
+.slot-box p {
+  margin: 4px 0;
+  font-size: 13px;
+}
+.frames {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
+}
+.frame-card {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+}
+.frame-image-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.frame-card img {
+  width: 100%;
+  display: block;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+.frame-meta {
+  padding: 8px;
+  font-size: 12px;
+}
